@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Implementation timeline · MachShip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Customer-facing timeline for embedding (e.g. Qwilr iFrame embed).
+   Contains no pricing or margin logic: it only draws the dates passed in the link (#d=...). */
+:root{--ink:#000000;--muted:#747474;--blue:#004AAD;--blue-ink:#004AAD;--orange:#FF7033;--green:#1B7A3D;--greysoft:#EFEFEF;--line:#E4E4E4;}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#fff;}
+body{font-family:'Plus Jakarta Sans',Arial,Helvetica,sans-serif;color:var(--ink);line-height:1.55;font-size:14px;padding:24px 20px;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:900px;margin:0 auto;}
+.eyebrow{font-family:'Manrope',Arial,sans-serif;font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);}
+h1{font-family:'Manrope',Arial,sans-serif;font-weight:800;font-size:24px;letter-spacing:-0.01em;line-height:1.25;margin-top:4px;}
+.sub{margin-top:6px;color:var(--muted);font-size:14px;}
+.kd{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:16px 0 4px;}
+.kd-t{background:#F4F6FA;border-radius:10px;padding:10px 14px;}
+.kd-t span{display:block;font-family:'Manrope',Arial,sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#747474;}
+.kd-t strong{display:block;margin-top:3px;font-family:'Manrope',Arial,sans-serif;font-size:16px;font-weight:800;color:#141414;}
+.kd-t.go strong{color:#004AAD;}
+.foot{margin-top:6px;padding-top:12px;border-top:1px solid var(--line);font-size:11px;color:var(--muted);}
+.err{padding:26px 20px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:13px;text-align:center;}
+@media(max-width:560px){body{padding:18px 12px;}h1{font-size:20px;}}
+/* timeline (same styles as the calculator) */
+.timeline{list-style:none;margin:18px 0 0;padding:0;}
+.trow{display:grid;grid-template-columns:120px 34px minmax(0,1fr);align-items:start;}
+.phase-label{display:grid;grid-template-columns:120px 34px minmax(0,1fr);align-items:center;}
+.phase-label .pl-text{grid-column:3;font-family:'Manrope',Arial,sans-serif;font-weight:700;font-size:12px;letter-spacing:.04em;color:var(--muted);padding:18px 0 8px;}
+.phase-label .pl-spine{grid-column:2;justify-self:center;width:2px;height:100%;background:var(--line);}
+.phase-label:first-child .pl-spine{background:transparent;}
+.when{padding:2px 12px 24px 0;text-align:right;}
+.when .dow{display:block;font-size:11px;color:var(--muted);}
+.when .date{display:block;font-family:'Manrope',Arial,sans-serif;font-weight:800;font-size:14px;color:var(--ink);white-space:nowrap;}
+.when .offset{display:inline-block;margin-top:5px;padding:1px 8px;border-radius:999px;background:var(--greysoft);color:var(--muted);font-size:10px;font-weight:600;white-space:nowrap;}
+.node{position:relative;align-self:stretch;display:flex;justify-content:center;}
+.node::before{content:"";position:absolute;top:0;bottom:0;width:2px;background:var(--line);}
+.trow:first-of-type .node::before{top:9px;}
+.trow.is-last .node::before{bottom:auto;height:9px;}
+.dot{position:relative;z-index:1;margin-top:6px;width:11px;height:11px;border-radius:50%;background:#fff;border:2.5px solid var(--blue);}
+.trow.is-start .dot{background:var(--blue);}
+.what{padding:0 0 24px 14px;}
+.m-title{margin:0;font-family:'Manrope',Arial,sans-serif;font-weight:800;font-size:15px;line-height:1.35;}
+.m-num{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;margin-right:8px;border-radius:7px;background:var(--blue);color:#fff;font-size:11px;font-weight:800;vertical-align:2px;}
+.m-detail{margin:5px 0 0;color:var(--muted);font-size:13px;max-width:70ch;}
+.req-block{margin-top:11px;background:var(--greysoft);border-radius:10px;padding:13px 16px;max-width:70ch;}
+.req-block .req-title{margin:0 0 8px;font-family:'Manrope',Arial,sans-serif;font-weight:800;font-size:12px;color:var(--blue-ink);}
+.req-block ul{margin:0;padding:0;list-style:none;}
+.req-block li{font-size:13px;color:var(--muted);padding:4px 0;border-top:1px solid var(--line);}
+.req-block li:first-child{border-top:none;}
+.req-block li strong{color:var(--ink);font-weight:700;}
+.req-block .req-note{margin:8px 0 0;padding-top:8px;border-top:1px solid var(--line);font-size:12px;line-height:1.5;color:var(--muted);}
+.trow.is-gld .dot{width:15px;height:15px;margin-top:4px;border-color:var(--green);background:var(--green);}
+.trow.is-gld .gld-card{background:var(--greysoft);border:1px solid var(--line);border-left:4px solid var(--green);border-radius:11px;padding:14px 16px;max-width:66ch;}
+.trow.is-gld .m-num{background:var(--green);}
+.trow.is-gld .when .date{color:var(--green);font-size:15px;}
+.gld-flag{display:inline-block;margin-left:8px;padding:1px 9px;border-radius:999px;background:var(--green);color:#fff;font-size:10px;font-weight:700;vertical-align:2px;white-space:nowrap;}
+.tl-notes{margin-top:14px;}
+.tl-notes p{margin:0 0 8px;font-size:12px;color:var(--muted);max-width:80ch;}
+.tl-notes .commit{color:var(--ink);font-size:13px;}
+.tl-notes .commit strong{font-family:'Manrope',Arial,sans-serif;}
+.m-owner{margin:5px 0 0;font-size:12px;color:var(--muted);}
+.m-owner strong{color:var(--ink);font-weight:600;}
+.view-pill{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:var(--greysoft);border:1px solid var(--line);color:var(--muted);font-size:10px;font-weight:700;vertical-align:2px;}
+.trow.is-internal .dot{border-color:var(--muted);}
+.trow.is-internal .m-title{color:var(--muted);}
+.trow.is-scd .dot{width:15px;height:15px;margin-top:4px;background:var(--orange);border-color:var(--orange);}
+.trow.is-scd .gld-card{background:var(--greysoft);border:1px solid var(--line);border-left:4px solid var(--orange);border-radius:11px;padding:14px 16px;max-width:66ch;}
+.trow.is-scd .when .date{color:#C4551F;font-size:15px;}
+.scd-flag{display:inline-block;margin-left:8px;padding:1px 9px;border-radius:999px;background:var(--orange);color:#fff;font-size:10px;font-weight:700;vertical-align:2px;white-space:nowrap;}
+.trow.is-both .dot{width:16px;height:16px;margin-top:4px;border:0;background:linear-gradient(90deg,var(--orange) 0 50%,var(--green) 50% 100%);}
+.trow.is-both .when .date{color:var(--blue-ink);font-size:15px;}
+.dual-card{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:78ch;}
+@media(max-width:700px){.dual-card{grid-template-columns:1fr;}}
+.dual{background:var(--greysoft);border:1px solid var(--line);border-radius:11px;padding:13px 15px;}
+.dual-scd{border-left:4px solid var(--orange);}
+.dual-gld{border-left:4px solid var(--green);}
+.dual .m-title .scd-flag,.dual .m-title .gld-flag{margin-left:0;margin-top:6px;display:table;}
+@media(max-width:560px){.trow,.phase-label{grid-template-columns:84px 26px minmax(0,1fr);}.when .date{font-size:13px;white-space:normal;}}
+</style>
+</head>
+<body>
+<main class="wrap" id="app" aria-live="polite"></main>
+<script>
+(function(){
+  'use strict';
+  var DOW=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var MON3=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var MONF=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function parse(iso){var p=String(iso||'').split('-');if(p.length!==3)return null;var d=new Date(+p[0],+p[1]-1,+p[2]);return isNaN(d)?null:d;}
+  function fmtShort(d){return d.getDate()+' '+MON3[d.getMonth()]+' '+d.getFullYear();}
+  function fmtLong(d){return d.getDate()+' '+MONF[d.getMonth()]+' '+d.getFullYear();}
+  function fromB64url(s){
+    s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';
+    var bin=atob(s),bytes=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+  /* milestone wording, kept in step with the calculator (short links carry only keys and dates) */
+  var MILESTONES=[
+  {key:'signed',name:'Sales place handover form in Client Billing',detail:'Order form signed (Day 0). Sales lodge the handover form so onboarding can be scheduled.',view:'Internal',owner:'Sales',anchor:'osd',off:0},
+  {key:'handover',name:'Handover of customer',detail:'The account moves from Sales to the onboarding team.',view:'Internal',owner:'Sales',anchor:'osd',off:1},
+  {key:'kickoff',name:'Kick off call completed',detail:'We meet your team, walk through this plan and confirm what we need from each other.',view:'External',owner:'MSLead',anchor:'osd',off:3},
+  {key:'integration',name:'Integration meeting with MachShip and {customer} integration teams',detail:'Our integrations team meets yours to agree the integration scope, approach, testing and timings.',view:'External',owner:'CustLeadInt',anchor:'osd',off:4,onlyIf:'integration'},
+  {key:'carrierinfo',name:'Carrier information provided',detail:'You send us the account numbers, ratecards and auto-retain details for each carrier so we can connect them.',view:'External',owner:'Customer',anchor:'osd',off:5},
+  {key:'dispatch',name:'Dispatch training completed',detail:'Your dispatch team is trained and ready to book freight in MachShip.',view:'External',owner:'MSLead',anchor:'gld',off:-7},
+  {key:'admin',name:'Admin training completed',detail:'Your admin team is trained on users, reporting and day-to-day management ahead of go live.',view:'External',owner:'MSLead',anchor:'gld',off:-4},
+  {key:'trial',name:'Two-day trial period',detail:'Live bookings run alongside your current process so we can confirm everything works. This is your opportunity to test and flag any issues or discrepancies so we can fix them ahead of go live — if nothing is flagged, you’re confirming the system is set up correctly and you’re happy with it.',view:'External',owner:'CustLead',anchor:'gld',off:-2},
+  {key:'scd',name:'Subscription commencement date (SCD)',detail:'Your subscription commences on this date. This date is fixed.',view:'External',owner:'CustLead',anchor:'scd',off:0,kind:'scd'},
+  {key:'gld',name:'Go live date (GLD)',detail:'Go live — all freight moves through MachShip from this day.',view:'External',owner:'CustLead',anchor:'gld',off:0,kind:'gld'},
+  {key:'invoices',name:'First week’s carrier invoices provided',detail:'You send MachShip the carrier invoices from your first week of trade.',view:'External',owner:'CustLead',anchor:'gld',off:16},
+  {key:'reconcile',name:'Invoice reconciliation training completed',detail:'Your finance team is trained to reconcile carrier invoices in MachShip.',view:'External',owner:'MSLead',anchor:'gld',off:21},
+  {key:'followup',name:'Trade follow-up and customer onboarding survey completed',detail:'We review your first weeks of trade together and capture your feedback.',view:'External',owner:'MSLead',anchor:'gld',off:24},
+  {key:'support',name:'Handover to support',detail:'Implementation complete — you move to our support team for business as usual.',view:'External',owner:'MSLead',anchor:'gld',off:29}
+];
+  var CARRIER_REQ_NOTE='Some carriers need extra details, such as API keys or passwords. Your Implementation Project Manager will confirm these at the kick-off call, so please start gathering the rest now.';
+  var MONF=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var PHASE={r:'Getting you ready',o:'Hypercare period starts after go live'};
+  var REQ={i:'Account code for each, plus a ratecard where the carrier needs one',g:'Suburb-to-zone mapping, ratecard and booking email (per carrier)'};
+  function msByKey(k){for(var i=0;i<MILESTONES.length;i++)if(MILESTONES[i].key===k)return MILESTONES[i];return null;}
+  function ymdIso(y){y=String(y||'');return y.length===6?'20'+y.slice(0,2)+'-'+y.slice(2,4)+'-'+y.slice(4,6):'';}
+  function longDate(d){return d.getDate()+' '+MONF[d.getMonth()]+' '+d.getFullYear();}
+  function expand(v){
+    var c=v.c||'',cust=c||'Customer',MSO='MachShip onboarding';
+    function own(code){if(code==='MSLead')return MSO+' (lead) and '+cust;if(code==='CustLead')return cust+' (lead) and '+MSO;if(code==='CustLeadInt')return cust+' (lead) and MachShip integrations';if(code==='Customer')return cust;if(code==='Sales')return 'MachShip sales';if(code==='Onboarding')return MSO;return code;}
+    function txt(m){return {t:String(m.name).replace('{customer}',cust),x:m.detail,o:own(m.owner)};}
+    var scd=parse(ymdIso(v.s)),gld=parse(ymdIso(v.g)),osd=parse(ymdIso(v.o));if(!scd||!gld)return null;
+    var same=v.s===v.g,seq=0,rows=[];
+    (v.r||[]).forEach(function(a){
+      var key=a[0],o={d:ymdIso(a[1])};
+      if(a[2])o.l=PHASE[a[2]];
+      if(key==='both'){var sm=msByKey('scd'),gm=msByKey('gld');if(!sm||!gm)return;o.k='both';o.b=[txt(sm),txt(gm)];var g0=txt(gm);o.t=g0.t;o.x=g0.x;o.o=g0.o;}
+      else{var m=msByKey(key);if(!m)return;var x=txt(m);o.t=x.t;o.x=x.x;o.o=x.o;if(m.kind==='scd'||m.kind==='gld')o.k=m.kind;else o.n=String(++seq);if(key==='carrierinfo'&&v.q&&v.q.length)o.q=1;}
+      rows.push(o);
+    });
+    var sub=(same?'Go live and subscription commence ':'Subscription commences '+DOW[scd.getDay()]+' '+longDate(scd)+', go live ')+DOW[gld.getDay()]+' '+longDate(gld)+'.'+(osd?' Order form signed '+fmtShort(osd)+'.':'');
+    var cm='The subscription commencement date is locked in. Each milestone before go live exists to protect it — hitting them together keeps your implementation on time.'+(same||!v.b?'':' Go live follows '+v.b+' business day'+(v.b===1?'':'s')+' after the SCD.');
+    var h=(v.h&&v.h.length)?'Business days exclude weekends, national and Victorian public holidays and MachShip office closures. This plan already allows for: '+v.h.join(', ')+'.':'Business days exclude weekends and national and Victorian public holidays — none fall inside this plan.';
+    var q=(v.q||[]).map(function(e){return {n:e[0],r:REQ[e[1]]||e[1]};});
+    return {v:1,c:c,s:sub,kd:{o:ymdIso(v.o),s:ymdIso(v.s),g:ymdIso(v.g),same:same},cm:cm,h:h,p:ymdIso(v.p),q:q,qn:q.length?CARRIER_REQ_NOTE:'',r:rows};
+  }
+  function readData(){
+    var m=/[?&#]d=([A-Za-z0-9_-]+)/.exec((location.search||'')+(location.hash||''));   /* short links use ?d=, older ones #d= */
+    if(!m)return null;
+    try{
+      var d=JSON.parse(fromB64url(m[1]));
+      if(d&&d.v===2)d=expand(d);
+      return (d&&d.v===1&&Array.isArray(d.r)&&d.r.length)?d:null;
+    }catch(e){return null;}
+  }
+  function owner(o){return '<p class="m-owner">Owner: <strong>'+esc(o)+'</strong></p>';}
+  function render(data){
+    var html='<p class="eyebrow">Implementation timeline</p><h1>'+esc(data.c||'Your implementation')+'</h1>';
+    if(data.kd){
+      var tile=function(label,iso,go){var d=parse(iso);return d?'<div class="kd-t'+(go?' go':'')+'"><span>'+label+'</span><strong>'+DOW[d.getDay()].slice(0,3)+' '+fmtShort(d)+'</strong></div>':'';};
+      html+='<div class="kd">'+tile('Order form signed',data.kd.o)+(data.kd.same?tile('Go live and subscription commence',data.kd.g,true):tile('Subscription commences',data.kd.s,false)+tile('Go live',data.kd.g,true))+'</div>';
+    }else if(data.s)html+='<p class="sub">'+esc(data.s)+'</p>';
+    html+='<ol class="timeline">';
+    var last=data.r.length-1,first=true;
+    data.r.forEach(function(r,i){
+      var d=parse(r.d);if(!d)return;
+      if(r.l){html+='<li class="phase-label" aria-hidden="true">'+(first?'':'<span class="pl-spine"></span>')+'<span class="pl-text">'+esc(r.l)+'</span></li>';}
+      first=false;
+      var cls='trow'+(r.k==='both'?' is-both':r.k==='gld'?' is-gld':r.k==='scd'?' is-scd':'')+(i===last?' is-last':'');
+      var flag=r.k==='scd'?'<span class="scd-flag">Fixed date</span>':r.k==='gld'?'<span class="gld-flag">Go live</span>':'';
+      var body;
+      if(r.k==='both'&&Array.isArray(r.b)&&r.b.length===2){
+        body='<div class="dual-card">'+
+          '<div class="dual dual-scd"><p class="m-title">'+esc(r.b[0].t)+'<span class="scd-flag">Fixed date</span></p><p class="m-detail">'+esc(r.b[0].x)+'</p>'+owner(r.b[0].o)+'</div>'+
+          '<div class="dual dual-gld"><p class="m-title">'+esc(r.b[1].t)+'<span class="gld-flag">Go live</span></p><p class="m-detail">'+esc(r.b[1].x)+'</p>'+owner(r.b[1].o)+'</div></div>';
+      }else{
+        body='<p class="m-title">'+(r.n?'<span class="m-num">'+esc(r.n)+'</span>':'')+esc(r.t)+flag+'</p><p class="m-detail">'+esc(r.x)+'</p>'+owner(r.o);
+        if(r.q&&Array.isArray(data.q)&&data.q.length){
+          body+='<div class="req-block"><p class="req-title">Setup requirements for your carriers'+(data.qn?'*':'')+'</p><ul>'+data.q.map(function(c){return '<li><strong>'+esc(c.n)+'</strong> — '+esc(c.r)+'</li>';}).join('')+'</ul>'+(data.qn?'<p class="req-note">*'+esc(data.qn)+'</p>':'')+'</div>';
+        }
+        if(r.k==='gld'||r.k==='scd')body='<div class="gld-card">'+body+'</div>';
+      }
+      html+='<li class="'+cls+'"><div class="when"><span class="dow">'+DOW[d.getDay()]+'</span><span class="date">'+fmtShort(d)+'</span></div><div class="node"><span class="dot"></span></div><div class="what">'+body+'</div></li>';
+    });
+    html+='</ol>';
+    if(data.cm||data.h){
+      html+='<div class="tl-notes">';
+      if(data.cm){var cm=String(data.cm),dot=cm.indexOf('. ');html+='<p class="commit">'+(dot>0?'<strong>'+esc(cm.slice(0,dot+1))+'</strong>'+esc(cm.slice(dot+1)):esc(cm))+'</p>';}
+      if(data.h)html+='<p>'+esc(data.h)+'</p>';
+      html+='</div>';
+    }
+    var prep=parse(data.p);
+    html+='<p class="foot">'+(prep?'Prepared '+fmtLong(prep)+' · ':'')+'Everything moves through MachShip</p>';
+    document.getElementById('app').innerHTML=html;
+  }
+  var data=readData();
+  if(data)render(data);
+  else document.getElementById('app').innerHTML='<p class="err">This timeline link is incomplete. Ask your MachShip contact for an updated link.</p>';
+  window.addEventListener('hashchange',function(){var d=readData();if(d)render(d);});
+})();
+</script>
+</body>
+</html>
